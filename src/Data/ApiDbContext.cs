@@ -213,10 +213,6 @@ public class ApiDbContext : DbContext
             builder.Property(x=>x.DeliveryMethod)
                 .HasConversion(x=>x.Value, value=>new DeliveryMethod(value))
                 .IsRequired();
-
-            builder.Property(x=>x.OrderStatus)
-                .HasConversion(x=>x.Value, value => new OrderStatus(value))
-                .IsRequired();
             
             builder.HasMany(x=>x.Items)
                 .WithOne()
@@ -254,6 +250,10 @@ public class ApiDbContext : DbContext
             builder.Property(x => x.SelectedColor);
 
             builder.Property(x => x.SelectedSize);
+
+            builder.Property(x=>x.OrderStatus)
+                .HasConversion(x=>x.Value, value => new OrderStatus(value))
+                .IsRequired();
         });
 
     }

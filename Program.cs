@@ -33,6 +33,14 @@ builder.Services.AddAuthentication(options=>{
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowSpecificOrigin",
+            builder => builder.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+    });
+
 builder.Services.AddSwaggerGen(
     options=>{
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme{
@@ -59,10 +67,12 @@ builder.Services.AddSwaggerGen(
     }
 );
 
+
 var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigin");
 
 if (app.Environment.IsDevelopment())
 {

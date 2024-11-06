@@ -68,7 +68,7 @@ public class AnnouncementController : ControllerBase
         return Ok(announcement);
     }
 
-    [HttpGet("me")]
+    [HttpGet("my")]
     [Authorize]
     public async Task<IActionResult> GetMyAnnouncements()
     {

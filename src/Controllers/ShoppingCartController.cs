@@ -28,9 +28,7 @@ public class ShoppingCartController : ControllerBase
     public async Task <ShoppingCart> CreateCart()
     {
         var user = await _userService.CurrentUser(User);
-        var cartExists = await _dbContext.ShoppingCarts
-                            .Include(x=>x.Items)
-                            .FirstOrDefaultAsync(x=>x.OwnerId == user.Id);
+        var cartExists = await GetCart();
 
         if(cartExists is null){
             var cart = ShoppingCart.New(user.Id);
@@ -77,9 +75,7 @@ public class ShoppingCartController : ControllerBase
         [FromBody] AddItemDto dto)
     {
         var user = await _userService.CurrentUser(User);
-        var cart = await _dbContext.ShoppingCarts
-                            .Include(x=>x.Items)
-                            .FirstOrDefaultAsync(x=>x.OwnerId == user.Id);
+        var cart = await GetCart();
         
         var existingItem = cart.Items.FirstOrDefault(x=>x.Id == ItemId);
 
@@ -96,24 +92,21 @@ public class ShoppingCartController : ControllerBase
 
     [HttpGet]
     [Authorize]
-    public async Task <IActionResult> GetCart()
+    public async Task <ShoppingCart> GetCart()
     {
         var user = await _userService.CurrentUser(User);
         var cart = await _dbContext.ShoppingCarts
                             .Include(x=>x.Items)
                             .FirstOrDefaultAsync(x=>x.OwnerId == user.Id);
 
-        return Ok(cart);
+        return cart;
     }
 
     [HttpDelete("clear")]
     [Authorize]
     public async Task<IActionResult> ClearCart()
     {
-        var user = await _userService.CurrentUser(User);
-        var cart = await _dbContext.ShoppingCarts
-                            .Include(x=>x.Items)
-                            .FirstOrDefaultAsync(x=>x.OwnerId == user.Id);
+        var cart = await GetCart();
 
         if(cart is null) throw new CustomException("Cart not found.");
 
@@ -130,7 +123,7 @@ public class ShoppingCartController : ControllerBase
     public async Task<IActionResult> DeleteCart()
     {
         var user = await _userService.CurrentUser(User);
-        var cart = await _dbContext.ShoppingCarts.FirstOrDefaultAsync(x=>x.OwnerId==user.Id);
+        var cart = await GetCart();
 
         if(cart.OwnerId != user.Id) throw new CustomException("You dont have permission to delete this cart.");
         if(cart is null) throw new CustomException("Cart not found.");

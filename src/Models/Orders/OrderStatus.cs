@@ -10,7 +10,7 @@ public record OrderStatus
         Value = value;
     }
     public string Value { get; }
-    private static readonly List<string> AvailableOrderStatus = new List<string>{"pending", "accepted", "sent"};
+    private static readonly List<string> AvailableOrderStatus = new List<string>{"pending", "accepted", "sent", "declined"};
 
     public static OrderStatus Pending()
     {
@@ -25,6 +25,11 @@ public record OrderStatus
     public static OrderStatus Sent()
     {
         return new OrderStatus("sent");
+    }
+
+    public static OrderStatus Declined()
+    {
+        return new OrderStatus("declined");
     }
     
 }

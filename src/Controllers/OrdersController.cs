@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using projekt.src.Controllers.Dto.OrdersDto;
 using projekt.src.Data;
 using projekt.src.Exceptions;
 using projekt.src.Models.Orders;
@@ -85,7 +86,7 @@ public async Task<IActionResult> CreateOrder(
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> GetOrdersForMe()
+    public async Task<List<OrderDto>> GetOrdersForMe()
     {
         var user = await _userService.CurrentUser(User);
 
@@ -100,17 +101,39 @@ public async Task<IActionResult> CreateOrder(
                             .ToListAsync();
 
         var filtered = orders.Select(
-                            order=> new{
-                                order.Id,
-                                order.OrderingPerson,
-                                order.OrderedAt,
+                            order=> new OrderDto{
+                                Id = order.Id,
+                                OrderingPerson = order.OrderingPerson,
+                                OrderedAt = order.OrderedAt,
                                 Items = order.Items.Where(item => ownedAnnouncementsId.Contains(item.AnnouncementId)).ToList(),
-                                order.DeliveryMethod,
-                                order.OrderStatus
+                                DeliveryMethod = order.DeliveryMethod
                             }
         ).ToList();
 
-        return Ok(filtered);
+        return filtered;
     }
+
+    [HttpPut]
+    [Authorize]
+    public async Task<IActionResult> UpdateOrderStatus([FromQuery] Guid orderId, Guid itemId, [FromBody] string orderStatus)
+    {
+        var orders = await GetOrdersForMe();
+
+        var order = orders
+            .FirstOrDefault(x=>x.Id == orderId);
+
+        if(order is null) throw new CustomException("Order not found.");
+            
+        var status = new OrderStatus(orderStatus);
+        
+        var item = order.Items.FirstOrDefault(x=>x.Id == itemId);
+        item.UpdateItemOrderStatus(status);
+
+        await _dbContext.SaveChangesAsync();
+        
+        return Ok(order);
+    }
+
+
     
 }

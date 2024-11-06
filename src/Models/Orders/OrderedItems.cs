@@ -5,7 +5,7 @@ namespace projekt.src.Models.Orders;
 public class OrderedItems
 {
     public OrderedItems(){}
-    private OrderedItems(Guid id, Guid orderId, Guid shoppingCartId, Guid announcementId, Quantity quantity, string? color, string? size)
+    private OrderedItems(Guid id, Guid orderId, Guid shoppingCartId, Guid announcementId, Quantity quantity, string? color, string? size, OrderStatus orderStatus)
     {
         Id = id;
         OrderId = orderId;
@@ -14,6 +14,7 @@ public class OrderedItems
         Quantity = quantity;
         SelectedColor = color;
         SelectedSize = size;
+        OrderStatus = orderStatus;
     }
 
     public Guid Id { get; private set; }
@@ -23,10 +24,16 @@ public class OrderedItems
     public Quantity Quantity { get; private set; }
     public string? SelectedColor { get; private set; }
     public string? SelectedSize { get; private set; }
+    public OrderStatus OrderStatus { get; private set; }
 
     public static OrderedItems NewItem(Guid shoppingCartId, Guid orderId, Guid announcementId, Quantity quantity, string? color, string? size)
     {
-        return new OrderedItems(Guid.NewGuid(), orderId, shoppingCartId, announcementId, quantity, color, size);
+        return new OrderedItems(Guid.NewGuid(), orderId, shoppingCartId, announcementId, quantity, color, size, OrderStatus.Pending());
+    }
+
+    public void UpdateItemOrderStatus(OrderStatus orderStatus)
+    {
+        OrderStatus = orderStatus;
     }
 
     public static List<OrderedItems> ConvertToOrdered(List<ShoppingCartItem> items, Guid orderId)
