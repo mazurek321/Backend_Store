@@ -61,7 +61,7 @@ public async Task<IActionResult> CreateOrder(
         );
 
         await _dbContext.Orders.AddAsync(newOrder);
-        cart.ClearCart();
+        // cart.ClearCart();
         await _dbContext.SaveChangesAsync();
 
         return Ok(newOrder);

@@ -3134,11 +3134,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Bartek\\Desktop\\projekt\\projekt.csproj",
+      "projectUniqueName": "c:\\Users\\Bartek\\Desktop\\projekt\\projekt.csproj",
       "projectName": "projekt",
-      "projectPath": "C:\\Users\\Bartek\\Desktop\\projekt\\projekt.csproj",
+      "projectPath": "c:\\Users\\Bartek\\Desktop\\projekt\\projekt.csproj",
       "packagesPath": "C:\\Users\\Bartek\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Bartek\\Desktop\\projekt\\obj\\",
+      "outputPath": "c:\\Users\\Bartek\\Desktop\\projekt\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Bartek\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -3163,8 +3163,9 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "direct"
-      }
+        "auditMode": "all"
+      },
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -3224,7 +3225,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

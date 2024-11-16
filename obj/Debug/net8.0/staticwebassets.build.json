@@ -1,11 +1,12 @@
 {
   "Version": 1,
-  "Hash": "rwPO/bA00oFAEgxYUXt1ldhkwboGVHmkC20nK8bvzwg=",
+  "Hash": "mPG7G6/dU/WydOSczYQCstQcb7WTOgy2OyLCc1PV3PY=",
   "Source": "projekt",
   "BasePath": "_content/projekt",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }
