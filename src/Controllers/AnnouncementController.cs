@@ -46,6 +46,8 @@ public class AnnouncementController : ControllerBase
             if(dto.Amount != totalColorsAmount) throw new Exception("The amount of colors does not match the amount of object.");
         }
 
+        if(dto.Title is null || dto.Amount <= 0 || dto.Cost is <= 0) throw new CustomException("You need to enter valid options.");
+
         var item = Item.NewItem(
             dto.Title,
             dto.Description,
@@ -136,6 +138,8 @@ public class AnnouncementController : ControllerBase
 
         var itemAmount = new ItemAmount(dto.Amount.Value);
         var cost = new Cost(dto.Cost.Value);
+
+        if(dto.Title is null || dto.Amount <= 0 || dto.Cost is <= 0) throw new CustomException("You need to enter valid options.");
 
         announcement.Item.UpdateItem(
             dto.Title,

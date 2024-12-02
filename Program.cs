@@ -14,10 +14,12 @@ var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseNpgsql(conn));
 
-builder.Services.AddAuthentication(options=>{
+
+
+builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options=>{
+}).AddJwtBearer(options => {
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -34,22 +36,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddCors(options =>
-    {
-        options.AddPolicy("AllowSpecificOrigin",
-            builder => builder.WithOrigins("http://localhost:5173")
-                .AllowAnyHeader()
-                .AllowAnyMethod());
-    });
+{
+    options.AddPolicy("AllowAnyOrigin", builder => builder
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+    );
+});
 
 builder.Services.AddSwaggerGen(
-    options=>{
-        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme{
-            Name="Authorization",
-            Description="Enter bearer authorization",
-            In=ParameterLocation.Header,
-            Type=SecuritySchemeType.Http,
+    options => {
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+            Name = "Authorization",
+            Description = "Enter bearer authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
             BearerFormat = "JWT",
-            Scheme="Bearer"
+            Scheme = "Bearer"
         });
         options.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
@@ -58,8 +61,8 @@ builder.Services.AddSwaggerGen(
                 {
                     Reference = new OpenApiReference
                     {
-                        Type=ReferenceType.SecurityScheme,
-                        Id="Bearer"
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
                     }
                 }, new string[]{}
             }
@@ -67,12 +70,12 @@ builder.Services.AddSwaggerGen(
     }
 );
 
-
 var app = builder.Build();
+
+app.UseCors("AllowAnyOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowSpecificOrigin");
 
 if (app.Environment.IsDevelopment())
 {

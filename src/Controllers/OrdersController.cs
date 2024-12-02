@@ -6,6 +6,7 @@ using projekt.src.Data;
 using projekt.src.Exceptions;
 using projekt.src.Models.Orders;
 using projekt.src.Models.ShoppingCart;
+using projekt.src.Models.Store;
 using projekt.src.Models.Users;
 
 
@@ -48,11 +49,76 @@ public async Task<IActionResult> CreateOrder(
 
         foreach (var item in cart.Items)
         {
-            var announcement = await _dbContext.Announcements.FirstOrDefaultAsync(x => x.Id == item.AnnouncementId);
+            var announcement = await _dbContext.Announcements
+                                               .Include(x => x.Item) 
+                                               .FirstOrDefaultAsync(x => x.Id == item.AnnouncementId);
             if (announcement != null)
             {
                 var owner = announcement.OwnerId;
                 if (!owners.Contains(owner)) owners.Add(owner);
+
+                if (announcement.Item.Amount.Value >= item.Quantity.Value)
+                {
+                    var new_amount = new ItemAmount(announcement.Item.Amount.Value - item.Quantity.Value);
+
+                        if (item.SelectedColor is not null && item.SelectedSize is not null)
+                        {
+                            var tab = announcement.Item.ColorsSizesAmounts;
+                            
+                            
+                            tab[item.SelectedColor][item.SelectedSize] -= item.Quantity.Value;
+
+                            announcement.Item.UpdateItem(
+                                announcement.Item.Title,
+                                announcement.Item.Description,
+                                new_amount,
+                                announcement.Item.Cost,
+                                announcement.Item.Categories,
+                                tab,
+                                announcement.Item.ColorsAmount,
+                                announcement.Item.Model_Brand
+                            );
+
+                            _dbContext.Update(announcement.Item);
+
+                        }
+                    
+                        else if(item.SelectedColor is not null){
+                            var tab = announcement.Item.ColorsAmount;
+                            tab[item.SelectedColor] -= item.Quantity.Value;
+
+                            announcement.Item.UpdateItem(
+                                announcement.Item.Title,
+                                announcement.Item.Description,
+                                new_amount,
+                                announcement.Item.Cost,
+                                announcement.Item.Categories,
+                                announcement.Item.ColorsSizesAmounts,
+                                tab,
+                                announcement.Item.Model_Brand
+                            );
+
+                            _dbContext.Update(announcement.Item);
+                        }
+                        else{
+                            announcement.Item.UpdateItem(
+                                announcement.Item.Title,
+                                announcement.Item.Description,
+                                new_amount,
+                                announcement.Item.Cost,
+                                announcement.Item.Categories,
+                                announcement.Item.ColorsSizesAmounts,
+                                announcement.Item.ColorsAmount,
+                                announcement.Item.Model_Brand
+                            );
+
+                             _dbContext.Update(announcement.Item);
+                        }
+                }
+                else
+                {
+                    throw new CustomException($"Not enough stock for item: {announcement.Item.Title}");
+                }
             }
         }
 
@@ -61,7 +127,7 @@ public async Task<IActionResult> CreateOrder(
         );
 
         await _dbContext.Orders.AddAsync(newOrder);
-        // cart.ClearCart();
+        cart.ClearCart();
         await _dbContext.SaveChangesAsync();
 
         return Ok(newOrder);
@@ -69,6 +135,7 @@ public async Task<IActionResult> CreateOrder(
 
     return NoContent();
 }
+
 
     [HttpGet("my-orders")]
     [Authorize]
@@ -134,6 +201,31 @@ public async Task<IActionResult> CreateOrder(
         return Ok(order);
     }
 
+
+    [NonAction]
+    private int ColorSizesAmountMethod(Announcement announcement, ShoppingCartItem item){
+    if (announcement.Item.ColorsSizesAmounts.ContainsKey(item.SelectedColor))
+    {
+        if (announcement.Item.ColorsSizesAmounts[item.SelectedColor].ContainsKey(item.SelectedSize))
+        {
+            int currentAmount = announcement.Item.ColorsSizesAmounts[item.SelectedColor][item.SelectedSize];
+
+            int newAmount = currentAmount - item.Quantity.Value;
+
+            newAmount = newAmount < 0 ? 0 : newAmount;
+            announcement.Item.ColorsSizesAmounts[item.SelectedColor][item.SelectedSize] = newAmount;
+            return newAmount;
+        }
+        else
+        {
+            throw new CustomException($"Size '{item.SelectedSize}' not available for color '{item.SelectedColor}' in item: {announcement.Item.Title}");
+        }
+    }
+    else
+    {
+        throw new CustomException($"Color '{item.SelectedColor}' not available in item: {announcement.Item.Title}");
+    }
+    }
 
     
 }

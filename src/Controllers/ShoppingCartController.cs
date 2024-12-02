@@ -43,30 +43,58 @@ public class ShoppingCartController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
-    public async Task<IActionResult> AddItem(
-        [FromQuery] Guid AnnouncementId,
-        [FromBody] AddItemDto dto
-    )
+[Authorize]
+public async Task<IActionResult> AddItem(
+    [FromQuery] Guid AnnouncementId,
+    [FromBody] AddItemDto dto
+)
+{
+    var announcement = await _dbContext.Announcements.FirstOrDefaultAsync(x => x.Id == AnnouncementId);
+    if (announcement is null)
+        throw new CustomException("Announcement not found.");
+
+    var user = await _userService.CurrentUser(User);
+    var cart = await CreateCart();
+    if (cart is null)
+        throw new CustomException("Cart not found.");
+
+    var quantity = new Quantity(dto.Quantity);
+
+    if(dto.Quantity <= 0) throw new CustomException("Invalid amount.");
+
+    var totalAvailableQuantity = announcement.Item.Amount.Value;
+    if (quantity.Value > totalAvailableQuantity)
+        throw new CustomException("The selected quantity exceeds the available amount of the item.");
+
+    if (dto.SelectedColor != null && announcement.Item.ColorsAmount != null)
     {
+        var availableColorAmount = announcement.Item.ColorsAmount
+            .FirstOrDefault(x => x.Key == dto.SelectedColor).Value;
 
-        var announcement = await _dbContext.Announcements.FirstOrDefaultAsync(x=>x.Id == AnnouncementId);
-        if(announcement is null) throw new CustomException("Announcement not found.");
-
-        var user = await _userService.CurrentUser(User);
-        var cart = await CreateCart();
-
-        if(cart is null) throw new CustomException("Cart not found.");
-
-        var quantity = new Quantity(dto.Quantity);
-        var cartItem = cart.AddItem(AnnouncementId, quantity, dto.SelectedColor, dto.SelectedSize);
-        if(cartItem is null) throw new CustomException("Item not found.");
-
-        _dbContext.ShoppingCartItems.AddAsync(cartItem);
-        await _dbContext.SaveChangesAsync();
-
-        return Ok(cart);
+        if (quantity.Value > availableColorAmount)
+            throw new CustomException($"The selected quantity for color {dto.SelectedColor} exceeds the available amount.");
     }
+
+    if (dto.SelectedColor != null && dto.SelectedSize != null && announcement.Item.ColorsSizesAmounts != null)
+    {
+        var availableSizeAmount = announcement.Item.ColorsSizesAmounts
+            .FirstOrDefault(x => x.Key == dto.SelectedColor).Value
+            .FirstOrDefault(y => y.Key == dto.SelectedSize).Value;
+
+        if (quantity.Value > availableSizeAmount)
+            throw new CustomException($"The selected quantity for size {dto.SelectedSize} of color {dto.SelectedColor} exceeds the available amount.");
+    }
+
+    var cartItem = cart.AddItem(AnnouncementId, quantity, dto.SelectedColor, dto.SelectedSize);
+    if (cartItem is null)
+        throw new CustomException("Item not found.");
+
+    _dbContext.ShoppingCartItems.AddAsync(cartItem);
+    await _dbContext.SaveChangesAsync();
+
+    return Ok(cart);
+}
+
 
     [HttpPut]
     [Authorize]
@@ -120,7 +148,7 @@ public class ShoppingCartController : ControllerBase
 
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeleteCart()
+    public async Task<IActionResult> DeleteCart([FromQuery] Guid? itemId)
     {
         var user = await _userService.CurrentUser(User);
         var cart = await GetCart();
@@ -128,9 +156,19 @@ public class ShoppingCartController : ControllerBase
         if(cart.OwnerId != user.Id) throw new CustomException("You dont have permission to delete this cart.");
         if(cart is null) throw new CustomException("Cart not found.");
 
-        cart.ClearCart();
-        _dbContext.ShoppingCartItems.RemoveRange(cart.Items);
-        _dbContext.ShoppingCarts.Remove(cart);
+        if(itemId is not null){
+            var announcement = await _dbContext.Announcements
+                        .Where(x=>x.Id == itemId)
+                        .FirstOrDefaultAsync();
+            if(announcement is null) throw new CustomException("Item not found.");
+
+             cart.RemoveOneItem(announcement);
+            
+        }else{
+            cart.ClearCart();
+            _dbContext.ShoppingCartItems.RemoveRange(cart.Items);
+            _dbContext.ShoppingCarts.Remove(cart);
+        }
         await _dbContext.SaveChangesAsync();
 
         return NoContent();

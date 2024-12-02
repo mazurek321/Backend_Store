@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +15,7 @@ namespace projekt.src.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-
+[EnableCors("AllowAnyOrigin")]
 public class UsersController : ControllerBase
 {
     private readonly ApiDbContext _dbContext;
@@ -89,7 +90,7 @@ public class UsersController : ControllerBase
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
-                expires : DateTime.UtcNow.AddMinutes(180),
+                expires: DateTime.MaxValue,
                 signingCredentials: signIn
             );
 
@@ -107,7 +108,6 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("user")]
-    [Authorize]
     public async Task<IActionResult> GetById([FromQuery] Guid userId){
         var id = new UserId(userId);
         var user = await _dbContext.Users.FirstOrDefaultAsync(x=>x.Id == id);

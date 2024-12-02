@@ -131,9 +131,6 @@ public class ApiDbContext : DbContext
 
             builder.Property(x => x.AnnouncementId);
 
-            builder.Property(x => x.UserId)
-                .HasConversion(x=>x.Value, value => new UserId(value));
-
             builder.Property(x => x.OwnerId)
                 .IsRequired()
                 .HasConversion(id => id.Value, value => new UserId(value));

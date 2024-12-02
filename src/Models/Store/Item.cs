@@ -1,3 +1,6 @@
+using Microsoft.VisualBasic;
+using projekt.src.Models.ShoppingCart;
+
 namespace projekt.src.Models.Store;
 
 public class Item
@@ -52,4 +55,5 @@ public class Item
         Model_Brand = model_Brand;
         UpdatedAt = DateTime.UtcNow;
     }
+
 }

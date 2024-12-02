@@ -29,36 +29,23 @@ public class ReviewsController : ControllerBase
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Create(
-        [FromQuery] Guid? announcementId, Guid? UserId,
+        [FromQuery] Guid announcementId,
         [FromBody] CreateReviewDto dto    
     )
     {
         var user = await _userService.CurrentUser(User);
-        
-        if(announcementId is not null)
-        {
+    
             var announcement = await _dbContext.Announcements.FirstOrDefaultAsync(x=>x.Id == announcementId);
             if(announcement is null) throw new CustomException("Announcement not found.");
             
             var existingReview = await _dbContext.Reviews.AnyAsync(x=>x.AnnouncementId == announcementId && x.OwnerId == user.Id);
             if(existingReview) throw new CustomException("You already gave a review to this announcement.");
-        }
         
         var rating = new Rating(dto.Rating);
-        var userId = new UserId(UserId.Value);
-
-        if(UserId is not null)
-        {
-            var reviewdUser = await _userService.CheckIfUSerExistsById(UserId.Value);
-            if(!reviewdUser) throw new CustomException("User not found.");
-
-            var existingReview = await _dbContext.Reviews.AnyAsync(x=>x.UserId == userId && x.OwnerId == user.Id);
-            if(existingReview) throw new CustomException("You already gave a review to this user.");
-        }
+    
         
         var review = Reviews.NewReview(
-                announcementId.Value,
-                userId,
+                announcementId,
                 user.Id,
                 dto.Comment,
                 rating

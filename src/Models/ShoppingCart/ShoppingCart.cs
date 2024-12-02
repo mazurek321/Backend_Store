@@ -55,9 +55,10 @@ public class ShoppingCart
         Items.Clear();
     }
 
-    public void RemoveItem(ShoppingCartItem item)
+    public void RemoveOneItem(Announcement item)
     {
         UpdatedAt = DateTime.UtcNow;
-        Items.Remove(item);
+        var index = Items.FindIndex(x=>x.AnnouncementId == item.Id);
+        Items.RemoveAt(index);
     } 
 }
