@@ -48,12 +48,14 @@ public class UsersController : ControllerBase
 
         var exists = await _dbContext.Users.AnyAsync(x=>x.Email == email);
         if(exists) throw new CustomException("User with this email already exists.");
+
+        var hashedPassword = new Password(password.CalculateMD5Hash(password.Value));
         
         var user = Models.Users.User.NewUser(
             email,
             name,
             lastname,
-            password,
+            hashedPassword,
             address,
             location,
             postcode,
@@ -72,8 +74,13 @@ public class UsersController : ControllerBase
         var email = new Email(userDto.Email);
         var password = new Password(userDto.Password);
 
+        var hashedPassword = new Password(password.CalculateMD5Hash(password.Value.Trim()));
+
         var user = await _dbContext.Users
-            .FirstOrDefaultAsync(x => x.Email == email && x.Password == password);
+            .FirstOrDefaultAsync(x => x.Email == email && x.Password == hashedPassword);
+
+        Console.WriteLine($"Password from user: {userDto.Password}");
+        Console.WriteLine($"Password from database: {hashedPassword.Value}");
 
         if(user != null){
             var claims = new[]

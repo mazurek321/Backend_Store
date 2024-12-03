@@ -127,3 +127,4 @@ C:\Users\Bartek\Desktop\projekt\obj\Debug\net8.0\projekt.sourcelink.json
 C:\Users\Bartek\Desktop\projekt\bin\Debug\net8.0\projekt.staticwebassets.endpoints.json
 C:\Users\Bartek\Desktop\projekt\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 C:\Users\Bartek\Desktop\projekt\obj\Debug\net8.0\staticwebassets\msbuild.projekt.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\Bartek\Desktop\projekt\bin\Debug\net8.0\System.Security.Permissions.dll
