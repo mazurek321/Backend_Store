@@ -43,57 +43,102 @@ public class ShoppingCartController : ControllerBase
     }
 
     [HttpPost]
-[Authorize]
-public async Task<IActionResult> AddItem(
-    [FromQuery] Guid AnnouncementId,
-    [FromBody] AddItemDto dto
-)
-{
-    var announcement = await _dbContext.Announcements.FirstOrDefaultAsync(x => x.Id == AnnouncementId);
-    if (announcement is null)
-        throw new CustomException("Announcement not found.");
-
-    var user = await _userService.CurrentUser(User);
-    var cart = await CreateCart();
-    if (cart is null)
-        throw new CustomException("Cart not found.");
-
-    var quantity = new Quantity(dto.Quantity);
-
-    if(dto.Quantity <= 0) throw new CustomException("Invalid amount.");
-
-    var totalAvailableQuantity = announcement.Item.Amount.Value;
-    if (quantity.Value > totalAvailableQuantity)
-        throw new CustomException("The selected quantity exceeds the available amount of the item.");
-
-    if (dto.SelectedColor != null && announcement.Item.ColorsAmount != null)
+    [Authorize]
+    public async Task<IActionResult> AddItem(
+        [FromQuery] Guid AnnouncementId,
+        [FromBody] AddItemDto dto
+    )
     {
-        var availableColorAmount = announcement.Item.ColorsAmount
-            .FirstOrDefault(x => x.Key == dto.SelectedColor).Value;
+        var announcement = await _dbContext.Announcements.FirstOrDefaultAsync(x => x.Id == AnnouncementId);
+        if (announcement is null)
+            throw new CustomException("Announcement not found.");
 
-        if (quantity.Value > availableColorAmount)
-            throw new CustomException($"The selected quantity for color {dto.SelectedColor} exceeds the available amount.");
+        var user = await _userService.CurrentUser(User);
+        var cart = await CreateCart();
+        if (cart is null)
+            throw new CustomException("Cart not found.");
+
+        var quantity = new Quantity(dto.Quantity);
+
+        if(dto.Quantity <= 0) throw new CustomException("Invalid amount.");
+
+        var totalAvailableQuantity = announcement.Item.Amount.Value;
+        if (quantity.Value > totalAvailableQuantity)
+            throw new CustomException("The selected quantity exceeds the available amount of the item.");
+
+        if (dto.SelectedColor != null && announcement.Item.ColorsAmount != null)
+        {
+            var availableColorAmount = announcement.Item.ColorsAmount
+                .FirstOrDefault(x => x.Key == dto.SelectedColor).Value;
+
+            if (quantity.Value > availableColorAmount)
+                throw new CustomException($"The selected quantity for color {dto.SelectedColor} exceeds the available amount.");
+        }
+
+        if (dto.SelectedColor != null && dto.SelectedSize != null && announcement.Item.ColorsSizesAmounts != null)
+        {
+            var availableSizeAmount = announcement.Item.ColorsSizesAmounts
+                .FirstOrDefault(x => x.Key == dto.SelectedColor).Value
+                .FirstOrDefault(y => y.Key == dto.SelectedSize).Value;
+
+            if (quantity.Value > availableSizeAmount)
+                throw new CustomException($"The selected quantity for size {dto.SelectedSize} of color {dto.SelectedColor} exceeds the available amount.");
+        }
+
+
+
+
+        var existingCartItem = cart.Items
+                                        .FirstOrDefault(x => x.AnnouncementId == AnnouncementId &&
+                                            x.SelectedColor == dto.SelectedColor &&
+                                            x.SelectedSize == dto.SelectedSize);
+
+         if (existingCartItem != null)
+        {
+            var currentQuantity = existingCartItem.Quantity.getValue();
+            var newQuantity = new Quantity(currentQuantity + quantity.Value);
+
+            existingCartItem.Update(
+                existingCartItem.SelectedColor,
+                existingCartItem.SelectedSize,
+                newQuantity
+            );
+
+            if (existingCartItem.Quantity.Value > totalAvailableQuantity)
+                throw new CustomException("The updated quantity exceeds the available amount of the item.");
+
+            if (dto.SelectedColor != null && announcement.Item.ColorsAmount != null)
+            {
+                var availableColorAmount = announcement.Item.ColorsAmount
+                    .FirstOrDefault(x => x.Key == dto.SelectedColor).Value;
+
+                if (existingCartItem.Quantity.Value > availableColorAmount)
+                    throw new CustomException($"The updated quantity for color {dto.SelectedColor} exceeds the available amount.");
+            }
+
+            if (dto.SelectedColor != null && dto.SelectedSize != null && announcement.Item.ColorsSizesAmounts != null)
+            {
+                var availableSizeAmount = announcement.Item.ColorsSizesAmounts
+                    .FirstOrDefault(x => x.Key == dto.SelectedColor).Value
+                    .FirstOrDefault(y => y.Key == dto.SelectedSize).Value;
+
+                if (existingCartItem.Quantity.Value > availableSizeAmount)
+                    throw new CustomException($"The updated quantity for size {dto.SelectedSize} of color {dto.SelectedColor} exceeds the available amount.");
+            }
+
+            _dbContext.Update(existingCartItem);
+        }
+        else
+        {
+            var cartItem = cart.AddItem(AnnouncementId, quantity, dto.SelectedColor, dto.SelectedSize);
+                    if (cartItem is null)
+                        throw new CustomException("Item not found.");
+
+            _dbContext.ShoppingCartItems.AddAsync(cartItem);
+        }
+        await _dbContext.SaveChangesAsync();
+        return Ok(cart);
     }
-
-    if (dto.SelectedColor != null && dto.SelectedSize != null && announcement.Item.ColorsSizesAmounts != null)
-    {
-        var availableSizeAmount = announcement.Item.ColorsSizesAmounts
-            .FirstOrDefault(x => x.Key == dto.SelectedColor).Value
-            .FirstOrDefault(y => y.Key == dto.SelectedSize).Value;
-
-        if (quantity.Value > availableSizeAmount)
-            throw new CustomException($"The selected quantity for size {dto.SelectedSize} of color {dto.SelectedColor} exceeds the available amount.");
-    }
-
-    var cartItem = cart.AddItem(AnnouncementId, quantity, dto.SelectedColor, dto.SelectedSize);
-    if (cartItem is null)
-        throw new CustomException("Item not found.");
-
-    _dbContext.ShoppingCartItems.AddAsync(cartItem);
-    await _dbContext.SaveChangesAsync();
-
-    return Ok(cart);
-}
 
 
     [HttpPut]

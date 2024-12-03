@@ -140,12 +140,15 @@ public class UsersController : ControllerBase
     {
         var user = await _userService.CurrentUser(User);
         var oldPassword = new Password(dto.OldPassword);
-        if(!user.Password.Equals(oldPassword)) throw new CustomException("Incorrect password.");
+        var oldPasswordHashed = new Password(oldPassword.CalculateMD5Hash(oldPassword.Value.Trim()));
+
+        if(!user.Password.Equals(oldPasswordHashed)) throw new CustomException("Incorrect password.");
 
         var password = new Password(dto.NewPassword);
-        if(user.Password.Equals(password)) throw new CustomException("New password cannot be the same as old password.");
+        var hashedPassword = new Password(password.CalculateMD5Hash(password.Value));
+        if(user.Password.Equals(hashedPassword)) throw new CustomException("New password cannot be the same as old password.");
 
-        user.UpdatePassword(password);
+        user.UpdatePassword(hashedPassword);
         await _dbContext.SaveChangesAsync();
 
         return Ok("Password changed successfully.");
