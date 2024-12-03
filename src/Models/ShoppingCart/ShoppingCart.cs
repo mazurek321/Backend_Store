@@ -40,10 +40,10 @@ public class ShoppingCart
         return cartItem;
     }
 
-    public void UpdateItem(Guid itemId, Quantity quantityVal, string? selectedColor, string? selectedSize)
+    public void UpdateItem(Guid announcementId, Quantity quantityVal, string? selectedColor, string? selectedSize)
     {   
         var quantity = new Quantity(quantityVal.Value);
-        var cartItem = Items.FindIndex(x=>x.Id == itemId);
+        var cartItem = Items.FindIndex(x=>x.AnnouncementId == announcementId);
 
         UpdatedAt = DateTime.UtcNow;
         Items[cartItem].Update(selectedColor, selectedSize, quantity);
