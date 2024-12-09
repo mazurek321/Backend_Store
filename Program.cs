@@ -9,6 +9,7 @@ using projekt.src.Controllers;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<UserService>();
+
 /*Polaczenie z baza*/
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApiDbContext>(options =>

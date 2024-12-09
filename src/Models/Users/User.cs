@@ -41,6 +41,14 @@ public class User
         return new User(id, email, name, lastname, password, address, location, postcode, phone, AccountType.User(), createdAt);
     }
 
+    public static User NewAdmin(
+        Email email, Name name, LastName lastname, Password password,
+        Address? address, Address? location, PostCode? postcode, Phone? phone, DateTime createdAt
+    ){
+        var id = new UserId(Guid.NewGuid());
+        return new User(id, email, name, lastname, password, address, location, postcode, phone, AccountType.Admin(), createdAt);
+    }
+
     public void UpdatePassword(Password newPassword)
     {      
         Password = newPassword;

@@ -177,6 +177,16 @@ public async Task<IActionResult> CreateOrder(
                             }
         ).ToList();
 
+
+        // var procedure = _dbContext.Orders.FromSqlRaw($"CALL getordersforme('{user.Id.Value}'::UUID)").AsAsyncEnumerable();
+
+        var procedure = await _dbContext.Set<User>()
+                                        .FromSqlRaw($"CALL getordersforme('{user.Id.Value}'::UUID)")
+                                        .ToListAsync();
+
+        Console.WriteLine(procedure);
+        Console.WriteLine("procedureeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
         return filtered;
     }
 
@@ -199,32 +209,6 @@ public async Task<IActionResult> CreateOrder(
         await _dbContext.SaveChangesAsync();
         
         return Ok(order);
-    }
-
-
-    [NonAction]
-    private int ColorSizesAmountMethod(Announcement announcement, ShoppingCartItem item){
-    if (announcement.Item.ColorsSizesAmounts.ContainsKey(item.SelectedColor))
-    {
-        if (announcement.Item.ColorsSizesAmounts[item.SelectedColor].ContainsKey(item.SelectedSize))
-        {
-            int currentAmount = announcement.Item.ColorsSizesAmounts[item.SelectedColor][item.SelectedSize];
-
-            int newAmount = currentAmount - item.Quantity.Value;
-
-            newAmount = newAmount < 0 ? 0 : newAmount;
-            announcement.Item.ColorsSizesAmounts[item.SelectedColor][item.SelectedSize] = newAmount;
-            return newAmount;
-        }
-        else
-        {
-            throw new CustomException($"Size '{item.SelectedSize}' not available for color '{item.SelectedColor}' in item: {announcement.Item.Title}");
-        }
-    }
-    else
-    {
-        throw new CustomException($"Color '{item.SelectedColor}' not available in item: {announcement.Item.Title}");
-    }
     }
 
     

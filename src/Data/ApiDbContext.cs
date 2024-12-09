@@ -58,6 +58,37 @@ public class ApiDbContext : DbContext
             builder.Property(x=>x.CreatedAt).IsRequired();
         });
 
+        var passwordForAdmin = new Password("admin");
+        var hashedPasswordForAdmin = new Password(passwordForAdmin.CalculateMD5Hash(passwordForAdmin.Value));
+
+        var admin = User.NewAdmin(
+            email: new Email("admin@example.com"),
+            name: new Name("Admin"),
+            lastname: new LastName("Admin"),
+            password: hashedPasswordForAdmin,
+            address: null,
+            location: null,
+            postcode: null,
+            phone: null,
+            createdAt: DateTime.UtcNow
+        );
+
+
+        modelBuilder.Entity<User>().HasData(new
+        {
+            Id = admin.Id,                          
+            Email = admin.Email,         
+            Name = admin.Name,          
+            LastName = admin.LastName,   
+            Password = admin.Password,
+            Address = admin.Address,
+            Location = admin.Location,
+            PostCode = admin.PostCode,
+            Phone = admin.Phone,
+            Role = admin.Role,
+            CreatedAt = admin.CreatedAt    
+        });
+
         modelBuilder.Entity<Announcement>(builder =>
         {
             builder.HasKey(x=>x.Id);

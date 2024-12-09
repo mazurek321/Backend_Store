@@ -79,9 +79,6 @@ public class UsersController : ControllerBase
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(x => x.Email == email && x.Password == hashedPassword);
 
-        Console.WriteLine($"Password from user: {userDto.Password}");
-        Console.WriteLine($"Password from database: {hashedPassword.Value}");
-
         if(user != null){
             var claims = new[]
             {
