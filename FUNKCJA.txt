@@ -1,0 +1,21 @@
+-- Active: 1729008291196@@127.0.0.1@5432@ProjektDotNet@public
+DROP FUNCTION getuserordersfunction;
+CREATE OR REPLACE FUNCTION public.getuserordersfunction(userid uuid)
+ RETURNS TABLE("Id" uuid, "OrderingPerson" uuid, "OrderedAt" timestamp with time zone, "DeliveryMethod" text)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    CREATE TEMP TABLE TempOwnedAnnouncements AS
+    SELECT a."Id"
+    FROM "Announcements" a
+    WHERE a."OwnerId" = userid;
+
+    RETURN QUERY
+    SELECT o."Id", o."OrderingPerson", o."OrderedAt", o."DeliveryMethod"
+    FROM "Orders" o
+    JOIN "OrderedItems" oi ON o."Id" = oi."OrderId"
+    WHERE oi."AnnouncementId" IN (SELECT t."Id" FROM TempOwnedAnnouncements t);
+
+    DROP TABLE TempOwnedAnnouncements;
+END;
+$function$

@@ -152,43 +152,36 @@ public async Task<IActionResult> CreateOrder(
     }
 
     [HttpGet]
-    [Authorize]
-    public async Task<List<OrderDto>> GetOrdersForMe()
-    {
-        var user = await _userService.CurrentUser(User);
+[Authorize]
+public async Task<List<OrderDto>> GetOrdersForMe()
+{
+    var user = await _userService.CurrentUser(User);
 
-        var ownedAnnouncementsId = await _dbContext.Announcements
-                                                .Where(x=>x.OwnerId == user.Id)
-                                                .Select(x=>x.Id)
+    var ownedAnnouncementsId = await _dbContext.Announcements
+                                                .Where(x => x.OwnerId == user.Id)
+                                                .Select(x => x.Id)
                                                 .ToListAsync();
 
-        var orders = await _dbContext.Orders
-                            .Include(x=>x.Items)
-                            .Where(x=>x.Items.Any(i=> ownedAnnouncementsId.Contains(i.AnnouncementId)))
-                            .ToListAsync();
+    var orders = await _dbContext.Set<Orders>()
+                                  .FromSqlRaw($"SELECT * FROM public.getuserordersfunction('{user.Id.Value}'::UUID)")
+                                  .Include(x=>x.Items)
+                                  .ToListAsync();
 
-        var filtered = orders.Select(
-                            order=> new OrderDto{
-                                Id = order.Id,
-                                OrderingPerson = order.OrderingPerson,
-                                OrderedAt = order.OrderedAt,
-                                Items = order.Items.Where(item => ownedAnnouncementsId.Contains(item.AnnouncementId)).ToList(),
-                                DeliveryMethod = order.DeliveryMethod
-                            }
-        ).ToList();
+    var filtered = orders.Select(order => new OrderDto
+    {
+        Id = order.Id,
+        OrderingPerson = order.OrderingPerson,
+        OrderedAt = order.OrderedAt,
+        DeliveryMethod = order.DeliveryMethod,
+        
+        Items = (order.Items ?? new List<OrderedItems>()) 
+                .Where(item => ownedAnnouncementsId.Contains(item.AnnouncementId))
+                .ToList()
+    }).ToList();
 
+    return filtered;
+}
 
-        // var procedure = _dbContext.Orders.FromSqlRaw($"CALL getordersforme('{user.Id.Value}'::UUID)").AsAsyncEnumerable();
-
-        var procedure = await _dbContext.Set<User>()
-                                        .FromSqlRaw($"CALL getordersforme('{user.Id.Value}'::UUID)")
-                                        .ToListAsync();
-
-        Console.WriteLine(procedure);
-        Console.WriteLine("procedureeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
-        return filtered;
-    }
 
     [HttpPut]
     [Authorize]
