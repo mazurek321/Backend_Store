@@ -4370,24 +4370,35 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Bartek\\.nuget\\packages\\": {}
+    "C:\\Users\\Bartek\\.nuget\\packages\\": {},
+    "E:\\programy\\DevExpress\\Components\\Offline Packages": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Bartek\\Desktop\\projekt\\projekt.csproj",
+      "projectUniqueName": "C:\\Users\\Bartek\\Desktop\\PROJEKTTUTORIAL\\Backend_Store\\projekt.csproj",
       "projectName": "projekt",
-      "projectPath": "C:\\Users\\Bartek\\Desktop\\projekt\\projekt.csproj",
+      "projectPath": "C:\\Users\\Bartek\\Desktop\\PROJEKTTUTORIAL\\Backend_Store\\projekt.csproj",
       "packagesPath": "C:\\Users\\Bartek\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Bartek\\Desktop\\projekt\\obj\\",
+      "outputPath": "C:\\Users\\Bartek\\Desktop\\PROJEKTTUTORIAL\\Backend_Store\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "E:\\programy\\DevExpress\\Components\\Offline Packages",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\Bartek\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\Bartek\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 24.2.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "E:\\programy\\DevExpress\\Components\\System\\Components\\Packages": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4404,7 +4415,7 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "all"
+        "auditMode": "direct"
       },
       "SdkAnalysisLevel": "9.0.100"
     },
@@ -4474,30 +4485,8 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1902",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Pakiet „System.Security.Cryptography.Xml” 4.5.0 ma znane umiarkowana luki w zabezpieczeniach o ważności, https://github.com/advisories/GHSA-vh55-786g-wjwj",
-      "libraryId": "System.Security.Cryptography.Xml",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    },
-    {
-      "code": "NU1904",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Pakiet „System.Text.Encodings.Web” 4.5.0 ma znane krytyczna luki w zabezpieczeniach o ważności, https://github.com/advisories/GHSA-ghhp-997w-qr28",
-      "libraryId": "System.Text.Encodings.Web",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  }
 }

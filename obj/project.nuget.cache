@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "CFdesXWoKdI=",
+  "dgSpecHash": "IwY25+uGCOg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Bartek\\Desktop\\projekt\\projekt.csproj",
+  "projectFilePath": "C:\\Users\\Bartek\\Desktop\\PROJEKTTUTORIAL\\Backend_Store\\projekt.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Bartek\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Bartek\\.nuget\\packages\\microsoft.aspnetcore.authentication\\2.2.0\\microsoft.aspnetcore.authentication.2.2.0.nupkg.sha512",
@@ -99,26 +99,5 @@
     "C:\\Users\\Bartek\\.nuget\\packages\\system.text.encodings.web\\4.5.0\\system.text.encodings.web.4.5.0.nupkg.sha512",
     "C:\\Users\\Bartek\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1902",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Pakiet „System.Security.Cryptography.Xml” 4.5.0 ma znane umiarkowana luki w zabezpieczeniach o ważności, https://github.com/advisories/GHSA-vh55-786g-wjwj",
-      "libraryId": "System.Security.Cryptography.Xml",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    },
-    {
-      "code": "NU1904",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Pakiet „System.Text.Encodings.Web” 4.5.0 ma znane krytyczna luki w zabezpieczeniach o ważności, https://github.com/advisories/GHSA-ghhp-997w-qr28",
-      "libraryId": "System.Text.Encodings.Web",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }
